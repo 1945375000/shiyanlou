@@ -43,7 +43,7 @@ def main(stdscr):
         return [list(row) for row in zip(*field)]
 
     def invert(field):
-        return [row[::-1] for row in field]]
+        return [row[::-1] for row in field]
 
     def move_is_possible(direction):
         def row_left_is_possible(row):
@@ -64,29 +64,57 @@ def main(stdscr):
         if direction=='s':
             return any(row_left_is_possible(row) for row in invert(transpose(cells)))
 
-    def move():
+    def move(direction):
         def move_row_left(row):
             def tighten(row):
                 new_row=[i for i in row if i>0]
-                new_row+=[0 i for i in range(len(row)-len(new_row))]
+                new_row+=[0 for i in range(len(row)-len(new_row))]
                 return new_row
             def merge(row):
+                pair=False
                 new_row=[]
-                for i in row:
-                    if i+1<len(row) and row[i]==row[i+1]:
-                        new_row.append(row[i]*2)
+                for i in range(len(row)):
+                    if pair:
                         new_row.append(0)
+                        pair=False
                     else:
-                        new_row.append(row[i])
+                        if i+1<len(row) and row[i]==row[i+1]:
+                            pair=True
+                            new_row.append(row[i]*2)
+                        else:
+                            new_row.append(row[i])
+                return new_row
+            return tighten(merge(tighten(row)))
 
+        if move_is_possible(direction):
+            global cells
+            if direction=='a':
+                cells=[move_row_left(row) for row in cells]
+            elif direction=='d':
+                cells=invert([move_row_left(row) for row in invert(cells)])
+            elif direction=='w':
+                cells=transpose([move_row_left(row) for row in transpose(cells)])
+            elif direction=='s':
+                cells=transpose(invert([move_row_left(row) for row in invert(transpose(cells))]))
 
-
-
-
-
+            spawn()
+            draw_game()
+            return True
+        else:
+            return False
 
     curses.use_default_colors()
 
-    stdscr.getch()
+    char=''
+    while char!='q':
+        char=chr(stdscr.getch())
+        if char in ['w','a','s','d']:
+            move(char)
+        if char=='r':
+            init_game()
+            spawn()
+            spawn()
+            draw_game()
+
 curses.wrapper(main)
 
