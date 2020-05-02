@@ -39,8 +39,14 @@ def main(stdscr):
         (i,j)=choice([(i,j) for i in range(4)  for j in range(4) if cells[i][j]==0])
         cells[i][j]=new_cell
 
+    def transpose(field):
+        return [list(row) for row in zip(*field)]
+
+    def invert(field):
+        return [row[::-1] for row in field]]
+
     def move_is_possible(direction):
-        def move_left_is_possible(row):
+        def row_left_is_possible(row):
             def change(i):
                 if row[i]==0 and row[i+1]!=0:
                     return True
@@ -49,9 +55,32 @@ def main(stdscr):
             return any(change(i) for i in range(len(row)-1))
 
         global cells
-        return any(move_left_is_possible(row) for row in cells)
+        if direction=='a':
+            return any(row_left_is_possible(row) for row in cells)
+        if direction=='d':
+            return any(row_left_is_possible(row) for row in invert(cells))
+        if direction=='w':
+            return any(row_left_is_possible(row) for row in transpose(cells))
+        if direction=='s':
+            return any(row_left_is_possible(row) for row in invert(transpose(cells)))
 
     def move():
+        def move_row_left(row):
+            def tighten(row):
+                new_row=[i for i in row if i>0]
+                new_row+=[0 i for i in range(len(row)-len(new_row))]
+                return new_row
+            def merge(row):
+                new_row=[]
+                for i in row:
+                    if i+1<len(row) and row[i]==row[i+1]:
+                        new_row.append(row[i]*2)
+                        new_row.append(0)
+                    else:
+                        new_row.append(row[i])
+
+
+
 
 
 
